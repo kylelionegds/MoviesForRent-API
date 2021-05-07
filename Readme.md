@@ -10,4 +10,4 @@
 
 ## Para executar o projeto:
 
-###`python app.py`
+`python app.py`
