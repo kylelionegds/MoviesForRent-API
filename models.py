@@ -44,7 +44,7 @@ def insert_usuario(id_, nome_comp, cpf_):
 
 "_____________________DELETE_____________________"
 
-def delete_diretor(where_column, where_value):
+def delete_diretor(where_column, where_value): #rodando
     delete("diretores", where_column, where_value)
 
 #delete_diretor("id", 35)
@@ -60,3 +60,21 @@ def delete_usuario(where_column, where_value):
 
 "_____________________SELECT_____________________"
 
+def select_diretor(key_value): #rodando
+    return select_like("diretores", "nome_completo", key_value)
+
+def select_genero(key_value): #rodando
+    return select_like("genero", "nome", key_value)
+
+def select_filme(key_value): #rodando
+    return select_like("filmes", "titulo", key_value)
+
+def select_usuario(where_key, key_value): #rodando
+    return select_like("usuarios", where_key, key_value)
+
+#select_diretor(1, 1, 100, 0)
+
+"_____________________GET_____________________"
+
+def get_director(name_):
+    select("diretores", "nome_completo", name_)
