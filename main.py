@@ -21,15 +21,18 @@ def execute(sql, params = None):
             cursor.execute(sql,params)
             conn.commit()
 
-def delete(tabela, coluna, valor):
-    execute(f"DELETE FROM {tabela} WHERE {coluna} = %s", (valor,))
+def delete(table_name, coluna, valor):
+    execute(f"DELETE FROM {table_name} WHERE {coluna} = %s", (valor,))
 
 def update(table_name, colunas, valores, chave, valor_chave):
     sets = [f"{coluna} = %s" for coluna in colunas]
     execute(f"""UPDATE {table_name} SET {",".join(sets)} WHERE {chave} = %s """, valores + [valor_chave])
 
-def select(tabela, chave=1, valor_chave=1, limit=100, offset=0):
-    return query(f"""SELECT * FROM {tabela} WHERE {chave} = %s LIMIT {limit} offset {offset}""", (valor_chave))
+def select(table_name, chave, valor_chave, limit=100, offset=0):
+    return query(f"""SELECT * FROM {table_name} WHERE {chave} = %s LIMIT {limit} offset {offset}""", valor_chave)
+
+def select_like(table_name, chave=1, valor_chave=1, limit=100, offset=0):
+    return query(f"""SELECT * FROM {table_name} WHERE {chave} LIKE %s LIMIT {limit} offset {offset}""", (f"%{valor_chave}%",))
 
 def insert(table_name, colunas, valores):
     execute(f"""INSERT INTO {table_name} ({', '.join(colunas)}) values ({', '.join(['%s' for valor in valores])})""", valores)
