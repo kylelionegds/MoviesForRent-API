@@ -12,27 +12,35 @@ params = None
 def query (sql, params = None):
     with connect(**config_db) as conn:
         with conn.cursor(dictionary=True) as cursor:
-            cursor.execute(sql,params)
+            cursor.execute(sql, params)
             return cursor.fetchall()
+
 
 def execute(sql, params = None):
     with connect(**config_db) as conn:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute(sql,params)
+        with conn.cursor() as cursor:
+            cursor.execute(sql, params)
             conn.commit()
+            return cursor.lastrowid
 
-def delete(tabela, coluna, valor):
-    execute(f"DELETE FROM {tabela} WHERE {coluna} = %s", (valor,))
+def delete(table_name, coluna, valor):
+    execute(f"DELETE FROM {table_name} WHERE {coluna} = %s", (valor,))
 
-def update(table_name, colunas, valores, chave, valor_chave):
+def update(tabela, nome_chave, valor_chave, colunas, valores):
     sets = [f"{coluna} = %s" for coluna in colunas]
-    execute(f"""UPDATE {table_name} SET {",".join(sets)} WHERE {chave} = %s """, valores + [valor_chave])
+    return execute(f"""UPDATE {tabela} SET {",".join(sets)} WHERE {nome_chave} = %s""", valores + [valor_chave])
 
-def select(tabela, chave=1, valor_chave=1, limit=100, offset=0):
-    return query(f"""SELECT * FROM {tabela} WHERE {chave} = %s LIMIT {limit} offset {offset}""", (valor_chave))
+def select(table_name, chave=1, valor_chave=1, limit=100, offset=0):
+    return query(f"""SELECT * FROM {table_name} WHERE {chave} = %s LIMIT {limit} offset {offset}""", (valor_chave, )) #verificar sintaxe no format
+
+def select_like(table_name, chave=1, valor_chave=1, limit=100, offset=0):
+    return query(f"""SELECT * FROM {table_name} WHERE {chave} LIKE %s LIMIT {limit} offset {offset}""", (f"%{valor_chave}%",))
+
+def get_data(table_name, where_key, where_value):
+    return query(f"""select * from {table_name} where {where_key} = %s""", (where_value,))
 
 def insert(table_name, colunas, valores):
-    execute(f"""INSERT INTO {table_name} ({', '.join(colunas)}) values ({', '.join(['%s' for valor in valores])})""", valores)
+    return execute(f"""INSERT INTO {table_name} ({', '.join(colunas)}) values ({', '.join(['%s' for valor in valores])})""", valores)
 
 #def create(nome_tabela, colunas):
     #list_tableColumns = []
