@@ -11,14 +11,14 @@ params = None
 
 def query (sql, params = None):
     with connect(**config_db) as conn:
-        with conn.cursor() as cursor:
+        with conn.cursor(dictionary=True) as cursor:
             cursor.execute(sql, params)
             return cursor.fetchall()
 
 
 def execute(sql, params = None):
     with connect(**config_db) as conn:
-        with conn.cursor(dictionary=True) as cursor:
+        with conn.cursor() as cursor:
             cursor.execute(sql, params)
             conn.commit()
             return cursor.lastrowid

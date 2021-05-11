@@ -28,7 +28,7 @@ def alter_payment(id, tipo, status, codigo_pagamento, valor, data, locacoes_id):
 "_____________________INSERT_____________________"
 
 def insert_director(nome_completo):
-    return insert("diretores", ["nome_completo"], [nome_completo]) #rodando
+    return insert("diretores", ["nome_completo"], [nome_completo,]) #rodando
 
 def insert_genre(nome):
     return insert("generos", ["nome",], [nome,]) #rodando
