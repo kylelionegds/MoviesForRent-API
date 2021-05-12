@@ -1,9 +1,13 @@
 from flask import Flask, jsonify, request
+from main import select_specific_rent, query
 from models import *
 from serializers import *
 from validator import *
+from datetime import datetime, timedelta
+import uuid, random
 
 app = Flask (__name__)
+
 
 @app.route("/diretores/all", methods=["GET"])
 def show_directors():
@@ -133,7 +137,7 @@ def find_user():
 
 @app.route("/usuarios/alter/<int:id>", methods=["PATCH", "PUT"])
 def alt_user(id):
-    user = user_from_web(**request.args)
+    user = user_from_web(**request.json)
     if valid_user(**user):
         alter_user(id, **user)
         updated_user = get_user(id)
@@ -151,13 +155,24 @@ def clear_user(id):
 
 @app.route("/locacoes", methods=["POST"])
 def insrt_rent():
-    rnt = rent_from_web(**request.json)
-    if valid_rent(**rnt):
-        id_rent = insert_rent(**rnt)
+    rent = rent_from_web(**request.json['locacao'])
+    pay_type = payment_from_web(**request.json['pagamento'])
+    if valid_payment(**pay_type) and valid_rent(**rent):
+        current_date = datetime.now()
+        end_date = (current_date + timedelta(hours=48))
+        id_rent = insert_rent(current_date, end_date, **rent)
         created_rent = get_rent(id_rent)
-        return rent_from_db(created_rent)
+        status_options = ["aprovado", "em analise", "reprovado"]
+        status = random.choice(status_options)
+        payment_cod = str(uuid.uuid4())
+        value = get_movie(rent["filmes_id"])["preco"]
+        date = datetime.now()
+        rent_id = select_specific_rent(rent["usuarios_id"])["id"]
+        payment_id = insert_payment(pay_type["tipo"], status, payment_cod, value, date, rent_id)
+        created_payment = get_payment(payment_id)
+        return jsonify({"pagamento": payment_from_db(created_payment, date), "locação": rent_from_db(created_rent, current_date, end_date)})
     else:
-        return jsonify({"erro":"locação inválida!"})
+        return jsonify({"erro": "não foi possível realizar locação!"})
 
 @app.route("/locacoes/find", methods=["GET"])
 def find_rent():
@@ -165,6 +180,14 @@ def find_rent():
     rents = select_rent(rent_id)
     rnts_from_db = [rent_from_db(id) for id in rents]
     return jsonify(rnts_from_db)
+
+@app.route("/locacoes/filme/<int:id>", methods=["GET"])
+def check_movie_rent_by_id(id):
+    return jsonify(query(f"""SELECT locacoes.id, filmes.titulo, usuarios.nome_completo, data_inicio,
+                         pagamento.status FROM locacoes
+                         INNER JOIN filmes ON filmes.id = locacoes.filmes_id AND filmes_id = %s
+                         INNER JOIN usuarios ON usuarios.id = locacoes.usuarios_id
+                         INNER JOIN pagamento ON locacoes.id = pagamento.locacoes_id""", [id,]))
 
 @app.route("/locacoes/alter/<int:id>", methods=["PATCH", "PUT"])
 def alt_rent(id):

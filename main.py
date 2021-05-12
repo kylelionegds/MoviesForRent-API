@@ -4,7 +4,7 @@ config_db = {
         "host":"localhost",
         "user":"root",
         "password":"root",
-        "database":"locadora-teste",
+        "database":"locadora",
     }
 
 params = None
@@ -26,15 +26,18 @@ def execute(sql, params = None):
 def delete(table_name, coluna, valor):
     execute(f"DELETE FROM {table_name} WHERE {coluna} = %s", (valor,))
 
-def update(tabela, nome_chave, valor_chave, colunas, valores):
-    sets = [f"{coluna} = %s" for coluna in colunas]
-    return execute(f"""UPDATE {tabela} SET {",".join(sets)} WHERE {nome_chave} = %s""", valores + [valor_chave])
+def update(table_name, where_key, key_value, columns, values):
+    sets = [f"{coluna} = %s" for coluna in columns]
+    return execute(f"""UPDATE {table_name} SET {",".join(sets)} WHERE {where_key} = %s""", values + [key_value,])
 
-def select(table_name, chave=1, valor_chave=1, limit=100, offset=0):
-    return query(f"""SELECT * FROM {table_name} WHERE {chave} = %s LIMIT {limit} offset {offset}""", (valor_chave, )) #verificar sintaxe no format
+def select(table_name, where_key=1, key_value=1, limit=100, offset=0):
+    return query(f"""SELECT * FROM {table_name} WHERE {where_key} = %s LIMIT {limit} offset {offset}""", (key_value, ))
 
-def select_like(table_name, chave=1, valor_chave=1, limit=100, offset=0):
-    return query(f"""SELECT * FROM {table_name} WHERE {chave} LIKE %s LIMIT {limit} offset {offset}""", (f"%{valor_chave}%",))
+def select_like(table_name, where_key=1, key_value=1, limit=100, offset=0):
+    return query(f"""SELECT * FROM {table_name} WHERE {where_key} LIKE %s LIMIT {limit} offset {offset}""", (f"%{key_value}%",))
+
+def select_specific_rent(id_user):
+    return query(f"SELECT locacoes.id FROM locacoes WHERE usuarios_id = %s", [id_user,])[0]
 
 def get_data(table_name, where_key, where_value):
     return query(f"""select * from {table_name} where {where_key} = %s""", (where_value,))

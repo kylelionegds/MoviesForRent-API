@@ -1,4 +1,4 @@
-from main import select, select_like, update, delete, insert
+from main import select, update, delete, insert
 
 "_____________________UPDATE_____________________"
 
@@ -12,10 +12,10 @@ def alter_genre(id_genre, nome): #rodando
     update("generos", "id", id_genre, ["nome"], [nome,])
 
 def alter_movie(id_movie, titulo): #rodando
-    update("filmes", id_movie, ["id"], [titulo,])
+    update("filmes", "id", id_movie, [titulo,])
 
 def alter_user(id_user, nome_completo): #rodando
-    update("usuarios", id_user, ["id"], ["nome_completo"], [nome_completo,])
+    update("usuarios", "id", id_user, ["nome_completo"], [nome_completo,])
 
 def alter_rent(id, data_inicio, data_fim, filmes_id, id_usuario):
     update("locacoes", "id", id, ["id", "data_inicio", "data_fim", "filmes_id", "id_usuario"],
@@ -75,19 +75,19 @@ def select_director(key_value): #rodando
     return select("diretores", "id", key_value)
 
 def select_genre(key_value): #rodando
-    return select_like("genero", "nome", key_value)
+    return select("genero", "nome", key_value)
 
 def select_movie(key_value): #rodando
-    return select_like("filmes", "titulo", key_value)
+    return select("filmes", "titulo", key_value)
 
 def select_user(key_value): #rodando
-    return select_like("usuarios", "nome_completo", key_value)
+    return select("usuarios", "nome_completo", key_value)
 
 def select_rent(key_value): #rodando
-    return select_like("locacoes", "id", key_value)
+    return select("locacoes", "id", key_value)
 
 def select_payment(key_value): #rodando
-    return select_like("pagamentos", "id", key_value)
+    return select("pagamentos", "id", key_value)
 
 #select_diretor(1, 1, 100, 0)
 
